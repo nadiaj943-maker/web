@@ -1,0 +1,2311 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <title>SALA DE ASTRONOMÍA</title>
+    <link rel="icon" type="image/png" href="./assets/icono_astronomia.png"/>
+</head>
+<body>
+    
+    <!--Boton para activar el pointerlock-->
+  <div id="boton">
+    Para comenzar da clic en + para activar <p id="activ">( )</p>Mira al rededor usando el mouse, pulsa Esc para parar
+  </div>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+      #boton {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        font-size: 40px;
+        cursor: pointer;
+      }
+      #activ {
+        color: rgba(9, 245, 9, 0.87);
+      }
+     </style>
+
+<canvas id="myCanvas">
+    <!--El elemento HTML canvas se puede utilizar para dibujar gráficos a través de 
+        secuencias de comandos (por lo general JavaScript ).-->
+</canvas>
+
+<!-- Aquí va todo el código de three.js -->
+<!-- script type="importmap" importa las librerías necesarias para three.js-->
+<script src="./fuentes/Aero_Regular.js"></script>
+
+<script type="importmap"> 
+    {
+        "imports":{
+            "three": "./js/three.module.js",
+            "three/PointerLockControls": "./js/PointerLockControls.js",
+            "three/interactive": "./js/three.interactive.js" 
+        }
+}
+</script>
+<script type="module"> 
+//🗃️🗃️ Mandar llamar a la librería
+    import * as THREE from 'three'; 
+    import {RoundedBoxGeometry} from "./js/RoundedBoxGeometry.js"
+        
+    import { InteractionManager } from 'three/interactive';//añade libreria itneractiva
+    import { TWEEN } from './js/tween.module.min.js'; // Libreria movimiento suave
+    import { PointerLockControls } from 'three/PointerLockControls';
+
+    import {TextGeometry} from "./js/TextGeometry.js";
+    import {FontLoader} from "./js/FontLoader.js";
+
+    import ESC01 from "./js/Personaje.js"
+
+
+//🕹️🕹️ Renderer - Realiza una conexión entre el código y el canvas
+    var renderer = new THREE.WebGLRenderer({
+    canvas: document.getElementById('myCanvas'), antialias: true,});
+    renderer.setPixelRatio(window.decivePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x3F3F45);
+
+
+// 🎬 Creando nueva escena - Es el espacio donde se colocan los objetos
+    var scene = new THREE.Scene();
+
+//🎥🎥 Agregar una cámara de perspectiva
+    var camera = new THREE.PerspectiveCamera(70,window.innerWidth / window.innerHeight,0.1,2000);
+    scene.add(camera);
+
+    // Evento para redimensionar el canvas
+    // Sizes: Objeto donde se toman los tamaños interiores 'inner' de la ventana.
+    const sizes = {
+    width: window.innerWidth,
+    height: window.innerHeight,
+    };
+    // Tomando el 'canvas' mediante el id 'myCanvas' del HTML para cambiar sus dimensiones
+    const canvas = document.getElementById('myCanvas');
+    // Evento que se ejecutará al redimensionar 'resize' nuestra ventana
+    window.addEventListener('resize', () => {
+    // Actualizando los valores del objeto 'sizes' con las medidas internas de la
+    ventana
+    sizes.width = window.innerWidth;
+    sizes.height = window.innerHeight;
+    // Actualización de los valores en la cámara como la relación-aspecto y la
+    //matriz de proyección.
+    camera.aspect = sizes.width / sizes.height;
+    camera.updateProjectionMatrix();
+    // Aplicando al render el nuevo tamaño del 'viewport'
+    renderer.setSize(sizes.width, sizes.height);
+    });
+
+
+    camera.position.set(0, 70, 250);
+
+     // agregar el pointlock ########
+        var controls = new PointerLockControls( camera, renderer.domElement );
+        document.getElementById('activ').onclick=()=>{
+          controls.lock()
+        }
+        controls.addEventListener( 'lock', function () {
+          boton.style.display = 'none';
+        });
+        controls.addEventListener( 'unlock', function () {
+          boton.style.display = '';
+        } );
+
+        // Añadir interactionManager #######
+        var interactionManager = new InteractionManager(
+          renderer,
+          camera,
+          renderer.domElement
+        );
+
+        var scene =new THREE.Scene(); 
+
+
+// Espacio para colocar los objetos
+
+    //SOMBRA 
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
+
+    var light = new THREE.DirectionalLight(0xffffff,0.8);
+    light.position.set(-200,150,150);
+    light.target.position.set(0,0,0); //CUANDO HAY SOMBRA
+    scene.add(light);
+
+    light.castShadow = true;
+    light.shadow.bias = 0.01;
+    light.shadow.mapSize.width = 1024;
+    light.shadow.mapSize.height = 1024;
+
+    light.shadow.camera.top = 150;
+    light.shadow.camera.bottom = -150;
+    light.shadow.camera.left = -150;
+    light.shadow.camera.right = 150;
+    light.shadow.camera.visible = true;
+
+        //DIRECCION DE LA LUZ
+        var directionalHelper = new THREE.CameraHelper(light.shadow.camera);
+        //scene.add(directionalHelper); 
+
+
+    //TEXTO 
+    var loader = new FontLoader();
+
+        var font = loader.parse(fontJSON1);
+        var geometry01 = new TextGeometry('SALA NÚCLEO CÓSMICO', { 
+            font: font, 
+            size: 45, 
+            height: 2,})
+        geometry01.center();
+
+        var material08 = new THREE.MeshLambertMaterial({
+            color:0x43A6B0, 
+            emissive:0x43A6B0, 
+            shading:THREE.FlatShading,});
+
+        var texto01 = new THREE.Mesh(geometry01,material08);
+        texto01.position.set(0,240,210);
+        scene.add(texto01);
+        texto01.scale.set(0.4,0.4,0.4);
+        texto01.castShadow = true;
+
+   
+
+    //SUELO 
+    var base = new THREE.BoxGeometry(500,5,400);
+    var colorbase = new THREE.MeshLambertMaterial({color:0x202033});
+    var suelo = new THREE.Mesh(base,colorbase);
+    //scene.add(suelo); 
+    suelo.receiveShadow = true;
+
+    //TECHO
+    var tch01 = new THREE.BoxGeometry(500,5,400);
+    //var textura01 = new THREE.TextureLoader().load("./asset/imagen1.jpg");
+    //var material06 = new THREE.MeshLambertMaterial({map:textura01});
+    var colorbase01 = new THREE.MeshLambertMaterial({color:0x212121});
+    var techo01 = new THREE.Mesh(tch01,colorbase01);
+    //scene.add(techo01); 
+    techo01.position.set(0,252,0);
+
+    //PARED TRACERA
+    var p01 = new THREE.BoxGeometry(500,250,10);
+    var colorbase02 = new THREE.MeshLambertMaterial({color:0x212121});
+    var pared01 = new THREE.Mesh(p01,colorbase02);
+    //scene.add(pared01); 
+    pared01.position.set(0,128,-200);
+
+    //PARED DELANTERA
+    var p048 = new THREE.BoxGeometry(190,250,13);
+    var pared07 = new THREE.Mesh(p048,colorbase02);
+    //scene.add(pared07); 
+    pared07.position.set(-145,128,192);
+
+    var p049 = new THREE.BoxGeometry(190,250,13);
+    var pared08 = new THREE.Mesh(p049,colorbase02);
+    //scene.add(pared08); 
+    pared08.position.set(146,128,192);
+
+    var p050 = new THREE.BoxGeometry(102,80,13);
+    var pared09 = new THREE.Mesh(p050,colorbase02);
+    //scene.add(pared09); 
+    pared09.position.set(0,215,192);
+            
+        //PUERTA DE CRISTAL
+        var cubo023 = new THREE.BoxGeometry(100,180,13,8,8,8);
+        var material = new THREE.MeshLambertMaterial({
+            color: 0xBFE3DF,
+            transparent:true,
+            opacity:0.5});
+        var cristal05 = new THREE.Mesh(cubo023,material);
+        //scene.add(cristal05); 
+        cristal05.position.set(0,85,192);
+    
+    
+    //PARED DE LADO CON PUERTAS
+    var p02 = new THREE.BoxGeometry(10,250,66);
+    var pared02 = new THREE.Mesh(p02,colorbase02);
+    //scene.add(pared02); 
+    pared02.position.set(-245,127.5,-168);
+
+    var p03 = new THREE.BoxGeometry(10,100,100);
+    var pared03 = new THREE.Mesh(p03,colorbase02);
+    //scene.add(pared03); 
+    pared03.position.set(-244,53,0);
+
+    var p05 = new THREE.BoxGeometry(10,250,55);
+    var pared05 = new THREE.Mesh(p05,colorbase02);
+    //scene.add(pared05); 
+    pared05.position.set(-244,127.5,171);
+
+    var p06 = new THREE.BoxGeometry(10,160,335);
+    var pared06 = new THREE.Mesh(p06,colorbase02);
+    //scene.add(pared06); 
+    pared06.position.set(-244,172,30);
+
+    //PARED IZQUIERDA
+    var p05 = new THREE.BoxGeometry(10,250,400);
+    var pared010 = new THREE.Mesh(p05,colorbase02);
+    //scene.add(pared010); 
+    pared010.position.set(245,127.5,0);
+
+    //PUERTAS DE CRISTAL 
+    var cubo019 = new THREE.BoxGeometry(8,88,91,8,8,8);
+    var cristal03 = new THREE.Mesh(cubo019,material);
+    //scene.add(cristal03); 
+    cristal03.position.set(-245,48,96);
+
+    var cubo020 = new THREE.BoxGeometry(8,88,91,8,8,8);
+    var cristal04 = new THREE.Mesh(cubo020,material);
+    //scene.add(cristal04); 
+    cristal04.position.set(-245,48,-96);
+
+            //PARED DELANTERA Blanca
+            var colorbase03 = new THREE.MeshLambertMaterial({color:0xFFFFFF});
+            var pared_frente01 = new THREE.BoxGeometry(200,250,5);
+            var paredb01 = new THREE.Mesh(pared_frente01,colorbase03);
+            //scene.add(paredb01); 
+            paredb01.position.set(-145,128,198);
+
+            var pared_frente02 = new THREE.BoxGeometry(200,250,5);
+            var paredb02 = new THREE.Mesh(pared_frente02,colorbase03);
+            //scene.add(paredb02); 
+            paredb02.position.set(147,128,198);
+
+            var pared_frente03 = new THREE.BoxGeometry(100,80,5);
+            var paredb03 = new THREE.Mesh(pared_frente03,colorbase03);
+            //scene.add(paredb03); 
+            paredb03.position.set(0,213,198);
+
+                //AGRUPAR ESAS PAREDES
+                var pared_blanca = new THREE.Group();
+                pared_blanca.add(paredb01,paredb02,paredb03);
+                //scene.add(pared_blanca);
+                pared_blanca.position.set(0,0,0);
+            
+
+        //AGRUPAR PAREDES
+            var paredes = new THREE.Group();
+            paredes.add(suelo,techo01,pared01,pared07,pared08,pared09,cristal05,pared02,pared03,pared05,pared06,pared010,cristal03,cristal04,pared_blanca);
+            scene.add(paredes);
+            //paredes.position.set(0,0,0);
+
+
+    //TORRES
+    var tch04 = new THREE.BoxGeometry(30,248,30,8,8,8);
+    var color029 = new THREE.MeshLambertMaterial({color:0x1C1B19});
+    var torre01 = new THREE.Mesh(tch04,color029);
+    //scene.add(torre01); 
+    torre01.position.set(225,128,-180);
+
+    var tch05 = new THREE.BoxGeometry(30,248,30,8,8,8);
+    var torre02 = new THREE.Mesh(tch05,color029);
+    //scene.add(torre02); 
+    torre02.position.set(-225,128,-180);
+
+    var tch06 = new THREE.BoxGeometry(30,248,30,8,8,8);
+    var torre03 = new THREE.Mesh(tch06,color029);
+    //scene.add(torre03); 
+    torre03.position.set(-225,128,180);
+
+    var tch07 = new THREE.BoxGeometry(30,248,30,8,8,8);
+    var torre04 = new THREE.Mesh(tch07,color029);
+    //scene.add(torre04); 
+    torre04.position.set(225,128,180);
+
+    var tch08 = new THREE.BoxGeometry(30,20,360,8,8,8);
+    var torre05 = new THREE.Mesh(tch08,color029);
+    //scene.add(torre05); 
+    torre05.position.set(225,240,0);
+
+    var tch09 = new THREE.BoxGeometry(30,20,360,8,8,8);
+    var torre06 = new THREE.Mesh(tch09,color029);
+    //scene.add(torre06); 
+    torre06.position.set(-225,240,0);
+
+    var tch010 = new THREE.BoxGeometry(450,20,30,8,8,8);
+    var torre07 = new THREE.Mesh(tch010,color029);
+    //scene.add(torre07); 
+    torre07.position.set(3,241,-190);
+
+        //AGRUPAR TORRES
+            var torres = new THREE.Group();
+            torres.add(torre01,torre02,torre03,torre04,torre05,torre06,torre07);
+            //scene.add(torres);
+            //torres.position.set(0,0,0);
+
+    //PUNTOS DE LUZ PARED ATRAS
+    var pl022 = new THREE.PointLight(0xF7F7E6,4,100,0.8);
+    pl022.position.set(0,250,-180);
+    //scene.add(pl022);
+    var helpert022 = new THREE.PointLightHelper(pl022);
+    //scene.add(helpert022);
+
+    var pl023 = new THREE.PointLight(0xF7F7E6,2,100,0.8);
+    pl023.position.set(130,250,-180);
+    //scene.add(pl023);
+    var helpert023 = new THREE.PointLightHelper(pl023);
+    //scene.add(helpert023);
+
+    var pl024 = new THREE.PointLight(0xF7F7E6,2,100,0.8);
+    pl024.position.set(-130,250,-180);
+    //scene.add(pl024);
+    var helpert024 = new THREE.PointLightHelper(pl024);
+    //scene.add(helpert024);
+
+    //PUNTOS DE LUZ PARED IZQUIERDA
+    var pl025 = new THREE.PointLight(0xF7F7E6,2,100,0.8);
+    pl025.position.set(220,250,0);
+    //scene.add(pl025);
+    var helpert025 = new THREE.PointLightHelper(pl025);
+    //scene.add(helpert025);
+
+    var pl026 = new THREE.PointLight(0xF7F7E6,2,100,0.8);
+    pl026.position.set(220,250,100);
+    //scene.add(pl026);
+    var helpert026 = new THREE.PointLightHelper(pl026);
+    //scene.add(helpert026);
+
+    var pl027 = new THREE.PointLight(0xF7F7E6,2,100,0.8);
+    pl027.position.set(220,250,-100);
+    //scene.add(pl027);
+    var helpert027 = new THREE.PointLightHelper(pl027);
+    //scene.add(helpert027);
+
+    //PUNTOS DE LUZ PARED DERCHA
+    var pl028 = new THREE.PointLight(0xF7F7E6,2,100,0.8);
+    pl028.position.set(-220,250,0);
+    //scene.add(pl028);
+    var helpert028 = new THREE.PointLightHelper(pl028);
+    //scene.add(helpert028);
+
+    var pl029 = new THREE.PointLight(0xF7F7E6,2,100,0.8);
+    pl029.position.set(-220,250,100);
+    //scene.add(pl029);
+    var helpert029 = new THREE.PointLightHelper(pl029);
+    //scene.add(helpert029);
+
+    var pl030 = new THREE.PointLight(0xF7F7E6,2,100,0.8);
+    pl030.position.set(-220,250,-100);
+    //scene.add(pl030);
+    var helpert030 = new THREE.PointLightHelper(pl030);
+    //scene.add(helpert027);
+
+        //AGRUPAR PUNTOS DE LUZ
+            var luz = new THREE.Group();
+            //luz.add(pl022,pl023,pl024,pl025,pl026,pl027,pl028,pl029,pl030);
+            scene.add(luz);
+            //luz.position.set(0,0,0);
+
+        //AGRUPAR TODO EL CUARTO
+            var astronimia = new THREE.Group();
+            astronimia.add(paredes,torres,luz);
+            scene.add(astronimia);
+            //astronolia.position.set(0,0,0);
+
+
+
+
+    //FOTOGRAFIA
+    var tch02 = new THREE.BoxGeometry(200,105,3,8,8,8);
+    var textura02 = new THREE.TextureLoader().load("./assets/Imagen3.jpg");
+    var material07 = new THREE.MeshLambertMaterial({map:textura02});
+    var cuadro01 = new THREE.Mesh(tch02,material07);
+    //scene.add(cuadro01); 
+    cuadro01.position.set(0,120,103);
+    
+    //MARCO
+    var tch03 = new THREE.BoxGeometry(215,115,5,8,8,8);
+    var color028 = new THREE.MeshLambertMaterial({color:0xDB8D1A});
+    var marco01 = new THREE.Mesh(tch03,color028);
+    //scene.add(marco01); 
+    marco01.position.set(0,120,100);
+    marco01.castShadow = true;
+
+        //AGRUPAR CRUADRO
+        var cuadro = new THREE.Group();
+        cuadro.add(cuadro01,marco01);
+        //scene.add(cuadro);
+        cuadro.position.set(0,5,-292);
+    
+    //LETRERO 7
+    var cubo021 = new THREE.BoxGeometry(22,30,18,10,10,10,10);
+    var color03 = new THREE.MeshLambertMaterial({color:0x3F3F42});
+    var tarjeta013 = new THREE.Mesh(cubo021,color03);
+    //scene.add(tarjeta013); 
+    tarjeta013.position.set(0,30,110);
+    tarjeta013.castShadow = true;
+
+    var cubo022 = new THREE.BoxGeometry(21,10,15,10,10,10,10);
+    var color026 = new THREE.MeshLambertMaterial({color:0xA19F9F});
+    var tarjeta014 = new THREE.Mesh(cubo022,color026);
+    //scene.add(tarjeta014); 
+    tarjeta014.position.set(0,44,109.8);
+    tarjeta014.rotation.set(0.5,0,0);
+    tarjeta014.castShadow = true;
+
+    var color027 = new THREE.MeshLambertMaterial({color:0x222259});
+    var tarjeta015 = new THREE.Mesh(cubo022,color027);
+    //scene.add(tarjeta015); 
+    tarjeta015.position.set(0,45.5,110.5);
+    tarjeta015.rotation.set(0.5,0,0);
+    tarjeta015.scale.set(0.75,0.75,0.75);
+    tarjeta015.castShadow = true;
+
+        //AGRUPAR LETRERO
+        var letrero07 = new THREE.Group();
+        letrero07.add(tarjeta013,tarjeta014,tarjeta015);
+       //scene.add(letrero07);
+        letrero07.position.set(2,-23,-340);
+        letrero07.scale.set(2.5,1.5,1.5);
+
+        //TEXTO AL LETRERO
+        var loader = new FontLoader();
+        var font = loader.parse(fontJSON1);
+        var geometry01 = new TextGeometry('A Galactic', { 
+            font: font, 
+            size: 10, 
+            height: 2,})
+        geometry01.center();
+
+        var material08 = new THREE.MeshLambertMaterial({
+            color:0xF2F5F5, 
+            emissive:0x43A6B0, 
+            shading:THREE.FlatShading,});
+
+        var texto01 = new THREE.Mesh(geometry01,material08);
+        texto01.position.set(0,5,0);
+        //scene.add(texto01);
+        texto01.scale.set(0.4,0.4,0.4);
+        texto01.castShadow = true;
+
+        var geometry02 = new TextGeometry('Embrace', { 
+            font: font, 
+            size: 8, 
+            height: 2,})
+        geometry02.center();
+
+        var texto02 = new THREE.Mesh(geometry02,material08);
+        texto02.position.set(0,0,0);
+        //scene.add(texto02);
+        texto02.scale.set(0.4,0.4,0.4);
+        texto02.castShadow = true;
+
+        //AGRUPAR TEXTO DE LA FOTO
+        var foto = new THREE.Group();
+        foto.add(texto01,texto02);
+       // scene.add(foto);
+        foto.position.set(2,50,-170);
+        foto.rotation.set(-0.95,0,0); 
+
+        var pl043 = new THREE.PointLight(0xF7F7E6,2,100,0.8);
+        pl043.position.set(0,120,-180);
+        //scene.add(pl043);
+        var helpert043 = new THREE.PointLightHelper(pl043);
+        //scene.add(helpert043);
+
+        var pl044 = new THREE.PointLight(0xF7F7E6,2,100,0.8);
+        pl044.position.set(-50,150,-180);
+        //scene.add(pl044);
+        var helpert044 = new THREE.PointLightHelper(pl044);
+        //scene.add(helpert044);
+
+        //AGRUPAR TEXTO DE LA FOTO
+            var conjuntof01 = new THREE.Group();
+            conjuntof01.add(cuadro,letrero07,foto,pl043,pl044);
+            scene.add(conjuntof01);
+            conjuntof01.position.set(0,10,-1);
+
+    //FOTO 2
+    var tch011 = new THREE.BoxGeometry(3,75,143,8,8,8);
+    var textura03 = new THREE.TextureLoader().load("./assets/Imagen1.jpg");
+    var material09 = new THREE.MeshLambertMaterial({map:textura03});
+    var cuadro02 = new THREE.Mesh(tch011,material09);
+    //scene.add(cuadro02); 
+    cuadro02.position.set(2,120,100);
+
+    //MARCO
+    var tch03 = new THREE.BoxGeometry(5,80,150,8,8,8);
+    var marco02 = new THREE.Mesh(tch03,color028);
+    //scene.add(marco02); 
+    marco02.position.set(0,120,100);
+    //marco02.castShadow = true;
+
+        //AGRUPAR CRUADRO
+        var cuadro2 = new THREE.Group();
+        cuadro2.add(cuadro02,marco02);
+        //scene.add(cuadro2);
+        cuadro2.position.set(-240,50,-90);
+
+        var pl045 = new THREE.PointLight(0xF7F7E6,2,100,0.8);
+        pl045.position.set(-220,180,-30);
+        //scene.add(pl045);
+        var helpert045 = new THREE.PointLightHelper(pl045);
+        //scene.add(helpert045);
+
+        var pl046 = new THREE.PointLight(0xF7F7E6,2,100,0.8);
+        pl046.position.set(-220,180,60);
+        //scene.add(pl046);
+        var helpert046 = new THREE.PointLightHelper(pl046);
+        //scene.add(helpert046);
+
+        var pl048 = new THREE.PointLight(0xF7F7E6,2,100,0.2);
+        pl048.position.set(-230,120,-50);
+       // scene.add(pl048);
+        var helpert048 = new THREE.PointLightHelper(pl048);
+        //scene.add(helpert048);
+
+        var pl049 = new THREE.PointLight(0xF7F7E6,2,100,0.8);
+        pl049.position.set(-220,150,120);
+       // scene.add(pl049);
+        var helpert049 = new THREE.PointLightHelper(pl049);
+        //scene.add(helpert049);
+
+    var tch012 = new THREE.BoxGeometry(5,70,110,8,8,8);
+    var tarjeta016 = new THREE.Mesh(tch012,color026);
+    //scene.add(tarjeta016); 
+    tarjeta016.position.set(0,120,0);
+    tarjeta016.scale.set(0.4,0.3,0.4);
+    //tarjeta016.castShadow = true;
+
+    var tarjeta017 = new THREE.Mesh(tch012,color027);
+    //scene.add(tarjeta017); 
+    tarjeta017.position.set(0.5,120,0);
+    tarjeta017.scale.set(0.35,0.25,0.35);
+    //tarjeta017.castShadow = true;
+
+        //AGRUPAR TARJETA
+        var letrero08= new THREE.Group();
+        letrero08.add(tarjeta016,tarjeta017);
+        //scene.add(letrero08);
+        letrero08.position.set(-235,-1,-50);
+
+        var pl047 = new THREE.PointLight(0xF7F7E6,1,100,1);
+        pl047.position.set(-220,110,-50);
+        //scene.add(pl047);
+        var helpert047 = new THREE.PointLightHelper(pl047);
+        //scene.add(helpert047);
+
+        var geometry014 = new TextGeometry('A Saturnian', { 
+            font: font, 
+            size: 10, 
+            height: 2,})
+        geometry014.center();
+
+        var texto013 = new THREE.Mesh(geometry014,material08);
+        texto013.position.set(0,7,0);
+        //scene.add(texto013);
+        texto013.scale.set(0.4,0.4,0.4);
+        texto013.castShadow = true;
+
+        var geometry015 = new TextGeometry('Summer', { 
+            font: font, 
+            size: 8, 
+            height: 2,})
+        geometry015.center();
+
+        var texto014 = new THREE.Mesh(geometry015,material08);
+        texto014.position.set(0,2,0);
+        //scene.add(texto014);
+        texto014.scale.set(0.4,0.4,0.4);
+        texto014.castShadow = true;
+
+            //AGRUPAR TEXTO DE LA FOTO
+            var foto2 = new THREE.Group();
+            foto2.add(texto013,texto014);
+           //scene.add(foto2);
+            foto2.position.set(-233,115,-50);
+            foto2.rotation.set(0,1.6,0); 
+
+            //AGRUPAR TEXTO DE LA FOTO
+            var conjuntof02 = new THREE.Group();
+            conjuntof02.add(cuadro2,foto2,letrero08,pl045,pl046,pl048,pl049);
+            scene.add(conjuntof02);
+            conjuntof02.position.set(0,10,-40);
+
+
+    //FOTO 3
+    var tch013 = new THREE.BoxGeometry(3,50,50,8,8,8);
+    var textura04 = new THREE.TextureLoader().load("./assets/Imagen4.jpg");
+    var material010 = new THREE.MeshLambertMaterial({map:textura04});
+    var cuadro03 = new THREE.Mesh(tch013,material010);
+    //scene.add(cuadro03); 
+    cuadro03.position.set(0,170,-80);
+
+    //MARCO
+    var tch014 = new THREE.BoxGeometry(5,55,55,8,8,8);
+    var marco03 = new THREE.Mesh(tch014,color028);
+    //scene.add(marco03); 
+    marco03.position.set(2,170,-80);
+    marco03.castShadow = true;
+
+        //AGRUPAR CUADRO
+        var cuadro3 = new THREE.Group();
+        cuadro3.add(cuadro03,marco03);
+        //scene.add(cuadro3);
+        cuadro3.position.set(0,70,0);
+
+        var pl045 = new THREE.PointLight(0xF7F7E6,2,100,0.8);
+        pl045.position.set(215,210,-100);
+        //scene.add(pl045);
+        var helpert045 = new THREE.PointLightHelper(pl045);
+        //scene.add(helpert045);
+
+        //TEXTO DE LA FOTO
+        var tch019 = new THREE.BoxGeometry(5,60,95,8,8,8);
+        var tarjeta018 = new THREE.Mesh(tch019,color026);
+        //scene.add(tarjeta018); 
+        tarjeta018.position.set(0.5,200,0);
+        tarjeta018.scale.set(0.4,0.3,0.4);
+        tarjeta018.castShadow = true;
+
+        var tarjeta019 = new THREE.Mesh(tch019,color027);
+        //scene.add(tarjeta019); 
+        tarjeta019.position.set(0,200,0);
+        tarjeta019.scale.set(0.35,0.25,0.35);
+        tarjeta019.castShadow = true;
+
+        //AGRUPAR TARJETA
+        var letrero09= new THREE.Group();
+        letrero09.add(tarjeta018,tarjeta019);
+        //scene.add(letrero09);
+        letrero09.position.set(0,0,-80);
+
+        var geometry016 = new TextGeometry('Hubble Views the', { 
+            font: font, 
+            size: 6, 
+            height: 2,})
+        geometry016.center();
+
+        var texto015 = new THREE.Mesh(geometry016,material08);
+        texto015.position.set(0,0,0);
+        //scene.add(texto015);
+        texto015.scale.set(0.4,0.4,0.4);
+        texto015.castShadow = true;
+
+        var geometry017 = new TextGeometry('Dawn of a', { 
+            font: font, 
+            size: 6, 
+            height: 2,})
+        geometry017.center();
+
+        var texto016 = new THREE.Mesh(geometry017,material08);
+        texto016.position.set(0,-3,0);
+       // scene.add(texto016);
+        texto016.scale.set(0.4,0.4,0.4);
+        texto016.castShadow = true;
+
+         var geometry018 = new TextGeometry('Sun-like Star', { 
+            font: font, 
+            size: 6, 
+            height: 2,})
+        geometry018.center();
+
+        var texto017 = new THREE.Mesh(geometry018,material08);
+        texto017.position.set(0,-6,0);
+       // scene.add(texto017);
+        texto017.scale.set(0.4,0.4,0.4);
+        texto017.castShadow = true;
+
+         //AGRUPAR TEXTO DE LA FOTO
+        var foto3 = new THREE.Group();
+        foto3.add(texto015,texto016,texto017);
+        //scene.add(foto3);
+        foto3.position.set(-1,203,-80);
+        foto3.rotation.set(0,-1.6,0); 
+
+            //AGRUPAR TEXTO DE LA FOTO
+            var conjuntof03 = new THREE.Group();
+            conjuntof03.add(cuadro3,foto3,letrero09);
+            scene.add(conjuntof03);
+            conjuntof03.position.set(237,-50,-8);
+
+    //FOTO 4
+    var tch015 = new THREE.BoxGeometry(3,50,50,8,8,8);
+    var textura05 = new THREE.TextureLoader().load("./assets/Imagen5.jpg");
+    var material011 = new THREE.MeshLambertMaterial({map:textura05});
+    var cuadro04 = new THREE.Mesh(tch015,material011);
+    //scene.add(cuadro04); 
+    cuadro04.position.set(0,170,-80);
+
+    //MARCO
+    var tch016 = new THREE.BoxGeometry(5,55,55,8,8,8);
+    var marco04 = new THREE.Mesh(tch016,color028);
+    //scene.add(marco04); 
+    marco04.position.set(2,170,-80);
+    marco04.castShadow = true;
+
+        //AGRUPAR CRUADRO
+        var cuadro4 = new THREE.Group();
+        cuadro4.add(cuadro04,marco04);
+        //scene.add(cuadro4);
+        cuadro4.position.set(0,70,0);
+    
+        var pl046 = new THREE.PointLight(0xF7F7E6,1,100,0.8);
+        pl046.position.set(215,210,0);
+        //scene.add(pl046);
+        var helpert046 = new THREE.PointLightHelper(pl046);
+        //scene.add(helpert046);
+
+        //TEXTO DE LA FOTO
+        var tch020 = new THREE.BoxGeometry(5,60,95,8,8,8);
+        var tarjeta020 = new THREE.Mesh(tch019,color026);
+        //scene.add(tarjeta020); 
+        tarjeta020.position.set(0.5,200,0);
+        tarjeta020.scale.set(0.4,0.3,0.4);
+        tarjeta020.castShadow = true;
+
+        var tarjeta021 = new THREE.Mesh(tch019,color027);
+        //scene.add(tarjeta021); 
+        tarjeta021.position.set(0,200,0);
+        tarjeta021.scale.set(0.35,0.25,0.35);
+        tarjeta021.castShadow = true;
+
+        //AGRUPAR TARJETA
+        var letrero010= new THREE.Group();
+        letrero010.add(tarjeta020,tarjeta021);
+        //scene.add(letrero010);
+        letrero010.position.set(0,0,-80);
+
+        var geometry019 = new TextGeometry('Hubble Captures', { 
+            font: font, 
+            size: 6, 
+            height: 2,})
+        geometry019.center();
+
+        var texto018 = new THREE.Mesh(geometry019,material08);
+        texto018.position.set(0,0,0);
+        //scene.add(texto018);
+        texto018.scale.set(0.4,0.4,0.4);
+        texto018.castShadow = true;
+
+        var geometry020 = new TextGeometry('Majestic Barred', { 
+            font: font, 
+            size: 6, 
+            height: 2,})
+        geometry020.center();
+
+        var texto019 = new THREE.Mesh(geometry020,material08);
+        texto019.position.set(0,-3,0);
+       // scene.add(texto019);
+        texto019.scale.set(0.4,0.4,0.4);
+        texto019.castShadow = true;
+
+        var geometry018 = new TextGeometry('Spiral', { 
+            font: font, 
+            size: 6, 
+            height: 2,})
+        geometry018.center();
+
+        var texto020 = new THREE.Mesh(geometry018,material08);
+        texto020.position.set(0,-6,0);
+       // scene.add(texto020);
+        texto020.scale.set(0.4,0.4,0.4);
+        texto020.castShadow = true;
+
+         //AGRUPAR TEXTO DE LA FOTO
+        var foto4 = new THREE.Group();
+        foto4.add(texto018,texto019,texto020);
+        //scene.add(foto4);
+        foto4.position.set(-1,203,-80);
+        foto4.rotation.set(0,-1.6,0); 
+
+            //AGRUPAR TEXTO DE LA FOTO
+            var conjuntof04 = new THREE.Group();
+            conjuntof04.add(cuadro4,foto4,letrero010);
+            scene.add(conjuntof04);
+            conjuntof04.position.set(237,-50,80);
+
+    //FOTO 5
+    var tch017 = new THREE.BoxGeometry(3,50,50,8,8,8);
+    var textura06 = new THREE.TextureLoader().load("./assets/Imagen2.jpg");
+    var material012 = new THREE.MeshLambertMaterial({map:textura06});
+    var cuadro05 = new THREE.Mesh(tch017,material012);
+    //scene.add(cuadro05); 
+    cuadro05.position.set(0,170,-80);
+
+    //MARCO
+    var tch018 = new THREE.BoxGeometry(5,55,55,8,8,8);
+    var marco05 = new THREE.Mesh(tch018,color028);
+    //scene.add(marco05); 
+    marco05.position.set(2,170,-80);
+    marco05.castShadow = true;
+
+        //AGRUPAR CRUADRO
+        var cuadro5 = new THREE.Group();
+        cuadro5.add(cuadro05,marco05);
+        //scene.add(cuadro5);
+        cuadro5.position.set(0,70,2);
+    
+        var pl047 = new THREE.PointLight(0xF7F7E6,1,100,0.8);
+        pl047.position.set(215,200,90);
+        //scene.add(pl047);
+        var helpert047 = new THREE.PointLightHelper(pl047);
+        //scene.add(helpert047);
+
+        //TEXTO DE LA FOTO
+        var tch021 = new THREE.BoxGeometry(5,60,95,8,8,8);
+        var tarjeta022 = new THREE.Mesh(tch021,color026);
+        //scene.add(tarjeta022); 
+        tarjeta022.position.set(0.5,200,0);
+        tarjeta022.scale.set(0.4,0.3,0.4);
+        tarjeta022.castShadow = true;
+
+        var tarjeta023 = new THREE.Mesh(tch021,color027);
+        //scene.add(tarjeta023); 
+        tarjeta023.position.set(0,200,0);
+        tarjeta023.scale.set(0.35,0.25,0.35);
+        tarjeta023.castShadow = true;
+
+        //AGRUPAR TARJETA
+        var letrero011= new THREE.Group();
+        letrero011.add(tarjeta022,tarjeta023);
+        //scene.add(letrero011);
+        letrero011.position.set(0,0,-80);
+
+        var geometry021 = new TextGeometry('Comet', { 
+            font: font, 
+            size: 8, 
+            height: 2,})
+        geometry021.center();
+
+        var texto021 = new THREE.Mesh(geometry021,material08);
+        texto021.position.set(0,-2,0);
+        //scene.add(texto021);
+        texto021.scale.set(0.4,0.4,0.4);
+        texto021.castShadow = true;
+        
+        //AGRUPAR TEXTO DE LA FOTO
+        var foto5 = new THREE.Group();
+        foto5.add(texto021);
+        //scene.add(foto5);
+        foto5.position.set(-1,203,-80);
+        foto5.rotation.set(0,-1.6,0); 
+
+            //AGRUPAR TEXTO DE LA FOTO
+            var conjuntof05 = new THREE.Group();
+            conjuntof05.add(cuadro5,foto5,letrero011);
+            scene.add(conjuntof05);
+            conjuntof05.position.set(237,-50,170);
+
+            //AGRUPAR LUZ DE FOTOS DE LA FOTO
+            var luzf = new THREE.Group();
+            luzf.add(pl045,pl046,pl047);
+            scene.add(luzf);
+            luzf.position.set(0,0,0);
+
+
+
+    //VITRINA 1
+    var cubo01 = new THREE.BoxGeometry(50,70,50,8,8,8);
+    var color01 = new THREE.MeshLambertMaterial({color:0x454141});
+    var vitrina01 = new THREE.Mesh(cubo01,color01);
+    //scene.add(vitrina01); 
+    vitrina01.position.set(0,38,0);
+    vitrina01.castShadow = true;
+
+    var cubo02 = new THREE.BoxGeometry(49,4,49,5,5,5);
+    var color02 = new THREE.MeshLambertMaterial({color:0x57006B});
+    var vitbajo01 = new THREE.Mesh(cubo02,color02);
+    //scene.add(vitbajo01); 
+    vitbajo01.position.set(0,3,0);
+    vitbajo01.castShadow = true;
+
+    var cubo03 = new THREE.BoxGeometry(52,4,52,5,5,5);
+    var vitarriba01 = new THREE.Mesh(cubo03,color01);
+    //scene.add(vitarriba01); 
+    vitarriba01.position.set(0,73,0);
+    vitarriba01.castShadow = true;
+
+        //AGRUPAR LAS PARTES DE LA VITRINA 1
+        var base01 = new THREE.Group();
+        base01.add(vitarriba01,vitbajo01,vitrina01);
+        //scene.add(base01);
+        base01.position.set(220,1,60);
+        base01.rotation.set(0,-1.6,0);
+
+    //LETRERO 1
+    var cubo04 = new THREE.BoxGeometry(22,30,18,10,10,10,10);
+    var tarjeta01 = new THREE.Mesh(cubo04,color03);
+    //scene.add(tarjeta01); 
+    tarjeta01.position.set(0,30,110);
+    tarjeta01.castShadow = true;
+
+    var cubo012 = new THREE.BoxGeometry(21,10,15,10,10,10,10);
+    var tarjeta02 = new THREE.Mesh(cubo012,color026);
+    //scene.add(tarjeta02); 
+    tarjeta02.position.set(0,44,109.8);
+    tarjeta02.rotation.set(0.5,0,0);
+    tarjeta02.castShadow = true;
+
+    var tarjeta03 = new THREE.Mesh(cubo012,color027);
+    //scene.add(tarjeta03); 
+    tarjeta03.position.set(0,45.5,110.5);
+    tarjeta03.rotation.set(0.5,0,0);
+    tarjeta03.scale.set(0.75,0.75,0.75);
+    tarjeta03.castShadow = true;
+
+        //AGRUPAR LETRERO
+        var letrero01 = new THREE.Group();
+        letrero01.add(tarjeta01,tarjeta02,tarjeta03);
+        //scene.add(letrero01);
+        letrero01.position.set(345.3,-20,65);
+        letrero01.rotation.set(0,-1.6,0);
+        letrero01.scale.set(1.8,1.5,1.5);
+
+        //TEXTO DE LA PIEDRA
+        var geometry03 = new TextGeometry('Fragmentos', { 
+            font: font, 
+            size: 8, 
+            height: 2,})
+        geometry03.center();
+
+        var texto03 = new THREE.Mesh(geometry03,material08);
+        texto03.position.set(0,5,0);
+        //scene.add(texto03);
+        texto03.scale.set(0.35,0.4,0.4);
+        texto03.rotation.set(0,-1.6,0);
+        texto03.castShadow = true;
+
+        var geometry04 = new TextGeometry(' del Espacio', { 
+            font: font, 
+            size: 8, 
+            height: 2,})
+        geometry04.center();
+
+        var texto04 = new THREE.Mesh(geometry04,material08);
+        texto04.position.set(0,0,0);
+        //scene.add(texto04);
+        texto04.scale.set(0.35,0.4,0.4);
+        texto04.rotation.set(0,-1.6,0);
+        texto04.castShadow = true;
+
+        //AGRUPAR TEXTO DE LA FOTO
+        var piedra01 = new THREE.Group();
+        piedra01.add(texto03,texto04);
+        //scene.add(piedra01);
+        piedra01.position.set(175,52,60);
+        piedra01.rotation.set(0,0,-0.9); 
+
+        
+    //PIEDRA
+    var dodecahedron05 = new THREE.DodecahedronGeometry(20,0);
+    var color013 = new THREE.MeshLambertMaterial({color:0x212118});
+    var piedra = new THREE.Mesh(dodecahedron05,color013);
+    //scene.add(piedra);
+    piedra.position.set(220,90,50);
+    piedra.castShadow = true;
+   
+    //CRISTAL
+    var cubo09 = new THREE.BoxGeometry(50,50,48,8,8,8);
+    var cristal02 = new THREE.Mesh(cubo09,material);
+    //scene.add(cristal02); 
+    cristal02.position.set(220,100,50);
+    cristal02.castShadow = true;
+
+        var bs01 = new THREE.Group();
+        bs01.add(cristal02,piedra);
+        //scene.add(bs01);
+        bs01.position.set(0,0,10);
+
+        //PUNTO DE LUZ
+        var pl04 = new THREE.PointLight(0x83FCF8,3,40,0.8);
+        pl04.position.set(210,86,50);
+        //scene.add(pl04);
+        var helpert04 = new THREE.PointLightHelper(pl04);
+        //scene.add(helpert04);
+
+        var pl05 = new THREE.PointLight(0x83FCF8,3,40,0.8);
+        pl05.position.set(204,95,80);
+        //scene.add(pl05);
+        var helpert05 = new THREE.PointLightHelper(pl05);
+        //scene.add(helpert05);
+
+        //PUNTO DE LUZ DE LA VITRINA
+        var pl012 = new THREE.PointLight(0x9822BF,2,10,0.9);
+        pl012.position.set(200,0,70);
+       // scene.add(pl012);
+        var helpert012 = new THREE.PointLightHelper(pl012);
+       // scene.add(helpert012);
+
+        var pl013 = new THREE.PointLight(0x9822BF,2,100,0.8);
+        pl013.position.set(185,0,60);
+        //scene.add(pl013);
+        var helpert013 = new THREE.PointLightHelper(pl013);
+        //scene.add(helpert013);
+
+        var pl014 = new THREE.PointLight(0x9822BF,2,100,0.8);
+        pl014.position.set(220,0,95);
+        //scene.add(pl014);
+        var helpert014 = new THREE.PointLightHelper(pl014);
+        //scene.add(helpert014);
+
+        var pl015 = new THREE.PointLight(0x9822BF,2,100,0.8);
+        pl015.position.set(220,0,10);
+        //scene.add(pl015);
+        var helpert015 = new THREE.PointLightHelper(pl015);
+        //scene.add(helpert015);
+
+
+        //AGRUPAR TODA LA BASE DE LA PERDA CON LUCES
+            var b1 = new THREE.Group();
+            b1.add(base01,letrero01,piedra01,bs01,pl04,pl05,pl012,pl013,pl014,pl015);
+            scene.add(b1);
+            //b1.position.set(0,0,0);
+
+
+
+    //VITRINA 2
+    var cubo05 = new THREE.BoxGeometry(50,70,50,8,8,8);
+    var vitrina02 = new THREE.Mesh(cubo05,color01);
+    //scene.add(vitrina02); 
+    vitrina02.position.set(0,38,0);
+    vitrina02.castShadow = true;
+
+    var vitbajo02 = new THREE.Mesh(cubo02,color02);
+    //scene.add(vitbajo02); 
+    vitbajo02.position.set(0,3,0);
+    vitbajo02.castShadow = true;
+
+    var vitarriba02 = new THREE.Mesh(cubo03,color01);
+    //scene.add(vitarriba02); 
+    vitarriba02.position.set(0,73,0);
+    vitarriba02.castShadow = true;
+
+        //AGRUPAR LAS PARTES DE LA VITRINA 2
+        var base02 = new THREE.Group();
+        base02.add(vitarriba02,vitbajo02,vitrina02);
+        //scene.add(base02);
+        base02.position.set(220,0,-50);
+        base02.rotation.set(0,-1.6,0);
+        //base02.scale.set(0.75,0.75,0.75);
+
+    //LETRERO 2
+    var cubo013 = new THREE.BoxGeometry(22,30,18,10,10,10,10);
+    var tarjeta04 = new THREE.Mesh(cubo013,color03);
+    //scene.add(tarjeta04); 
+    tarjeta04.position.set(0,30,110);
+    tarjeta04.castShadow = true;
+
+    var cubo014 = new THREE.BoxGeometry(21,10,15,10,10,10,10);
+    var tarjeta05 = new THREE.Mesh(cubo014,color026);
+    //scene.add(tarjeta05); 
+    tarjeta05.position.set(0,44,109.8);
+    tarjeta05.rotation.set(0.5,0,0);
+    tarjeta05.castShadow = true;
+
+    var tarjeta06 = new THREE.Mesh(cubo012,color027);
+    //scene.add(tarjeta06); 
+    tarjeta06.position.set(0,45.5,110.5);
+    tarjeta06.rotation.set(0.5,0,0);
+    tarjeta06.scale.set(0.75,0.75,0.75);
+    tarjeta06.castShadow = true;
+
+        //AGRUPAR LETRERO
+        var letrero02 = new THREE.Group();
+        letrero02.add(tarjeta04,tarjeta05,tarjeta06);
+        //scene.add(letrero02);
+        letrero02.position.set(350,-23,-54);
+        letrero02.rotation.set(0,-1.6,0);
+        letrero02.scale.set(1.8,1.5,1.5);
+
+        //TEXTO DEL DIAMANTE
+        var geometry06 = new TextGeometry('Minerales', { 
+            font: font, 
+            size: 8, 
+            height: 2,})
+        geometry06.center();
+
+        var texto05 = new THREE.Mesh(geometry06,material08);
+        texto05.position.set(0,5,0);
+        //scene.add(texto05);
+        texto05.scale.set(0.35,0.4,0.4);
+        texto05.rotation.set(0,-1.6,0);
+        texto05.castShadow = true;
+
+        var geometry07 = new TextGeometry('Cósmicos', { 
+            font: font, 
+            size: 8, 
+            height: 2,})
+        geometry07.center();
+
+        var texto06 = new THREE.Mesh(geometry07,material08);
+        texto06.position.set(0,0,0);
+        //scene.add(texto06);
+        texto06.scale.set(0.35,0.4,0.4);
+        texto06.rotation.set(0,-1.6,0);
+        texto06.castShadow = true;
+
+        //AGRUPAR TEXTO DE LA FOTO
+        var diamante = new THREE.Group();
+        diamante.add(texto05,texto06);
+       // scene.add(diamante);
+        diamante.position.set(178,49,-60);
+        diamante.rotation.set(0,0,-0.95); 
+
+    //CRISTAL
+    var cubo08 = new THREE.BoxGeometry(50,55,48,8,8,8);
+    var cristal01 = new THREE.Mesh(cubo08,material);
+    //scene.add(cristal01); 
+    cristal01.position.set(220,100,-50);
+    cristal01.castShadow = true;
+
+    //DIAMANTE
+    var dodecahedron01 = new THREE.DodecahedronGeometry(22,0);
+    var color04 = new THREE.MeshLambertMaterial({color:0xF0FCFC});
+    var diamante01 = new THREE.Mesh(dodecahedron01,color04);
+    //scene.add(diamante01);
+    diamante01.position.set(0,50,60);
+    diamante01.scale.set(0.8,1.2,0.5);
+    diamante01.castShadow = true;
+
+    var dodecahedron02 = new THREE.DodecahedronGeometry(18,0);
+    var diamante02 = new THREE.Mesh(dodecahedron02,color04);
+    //scene.add(diamante02);
+    diamante02.position.set(16.8,42,60);
+    diamante02.scale.set(1.3,0.5,0.5);
+    diamante02.rotation.set(0,0,-1.75);
+    diamante02.castShadow = true;
+
+    var diamante03 = new THREE.Mesh(dodecahedron02,color04);
+    //scene.add(diamante03);
+    diamante03.position.set(-17,42,60);
+    diamante03.scale.set(1.3,0.5,0.5);
+    diamante03.rotation.set(0,0,1.75);
+    diamante03.castShadow = true;
+
+    var dodecahedron03 = new THREE.DodecahedronGeometry(15,0);
+    var diamante04 = new THREE.Mesh(dodecahedron03,color04);
+    //scene.add(diamante04);
+    diamante04.position.set(8,37,70);
+    diamante04.scale.set(0.5,1,0.5);
+    diamante04.rotation.set(0.7,0.3,0);
+    diamante04.castShadow = true;
+
+    var diamante05 = new THREE.Mesh(dodecahedron03,color04);
+    //scene.add(diamante05);
+    diamante05.position.set(-8,37,70);
+    diamante05.scale.set(0.5,1,0.5);
+    diamante05.rotation.set(0.7,0,0);
+    diamante05.castShadow = true;
+
+    var dodecahedron04 = new THREE.DodecahedronGeometry(10,0);
+    var diamante06 = new THREE.Mesh(dodecahedron04,color04);
+    //scene.add(diamante06);
+    diamante06.position.set(0,35,78);
+    diamante06.scale.set(0.5,1,0.5);
+    diamante06.rotation.set(1.25,0,0);
+    diamante06.castShadow = true;
+        
+        //AGRUPAR DIAMANTES
+        var diamantefinal = new THREE.Group();
+        diamantefinal.add(diamante01,diamante02,diamante03,diamante04,diamante05,diamante06);
+        //scene.add(diamantefinal);
+        diamantefinal.position.set(285,50,-51);
+        diamantefinal.rotation.set(0,-1.6,0);
+        diamantefinal.scale.set(0.8,0.95,1);
+
+        //AGRUPAR 
+        var bs02 = new THREE.Group();
+        bs02.add(base02,cristal01,diamantefinal);
+        //scene.add(bs02);
+        bs02.position.set(0,2,-10);
+
+        //PUNTO DE LUZ
+        var pl01 = new THREE.PointLight(0x83FCF8,2,40,0.8);
+        pl01.position.set(210,120,-48);
+        scene.add(pl01);
+        var helpert01 = new THREE.PointLightHelper(pl01);
+        //scene.add(helpert01);
+
+        //PUNTO DE LUZ DE LA VITRINA
+        var pl011 = new THREE.PointLight(0x9822BF,2,10,0.8);
+        pl011.position.set(200,0,50);
+        //scene.add(pl011);
+        var helpert011 = new THREE.PointLightHelper(pl011);
+        //scene.add(helpert011);
+
+        var pl016 = new THREE.PointLight(0x9822BF,2,100,0.8);
+        pl016.position.set(185,0,-60);
+       // scene.add(pl016);
+        var helpert016 = new THREE.PointLightHelper(pl016);
+       // scene.add(helpert016);
+
+        var pl017 = new THREE.PointLight(0x9822BF,2,10,0.8);
+        pl017.position.set(200,0,-200);
+        //scene.add(pl017);
+        var helpert017 = new THREE.PointLightHelper(pl017);
+        //scene.add(helpert017);
+
+        var pl018 = new THREE.PointLight(0x9822BF,2,100,0.8);
+        pl018.position.set(220,0,-1);
+        //scene.add(pl018);
+        var helpert018 = new THREE.PointLightHelper(pl018);
+       // scene.add(helpert018);
+
+        //AGRUPAR TODA LA BASE DE LA PERDA CON LUCES
+            var b2 = new THREE.Group();
+            b2.add(letrero02,diamante,bs02,pl01,pl011,pl016,pl017,pl018);
+            scene.add(b2);
+            //b2.position.set(0,0,0);
+
+
+
+
+    //MESA DE PLANETAS
+    var cubo08 = new THREE.BoxGeometry(50,60,220,8,8,8);
+    var color015 = new THREE.MeshLambertMaterial({color:0x454141});
+    var mesa01 = new THREE.Mesh(cubo08,color015);
+    //scene.add(mesa01); 
+    mesa01.position.set(-140,35,0);
+    mesa01.castShadow = true;
+    
+    var cubo09 = new THREE.BoxGeometry(48,4,220,5,5,5);
+    var color09 = new THREE.MeshLambertMaterial({color:0x57006B});
+    var vitbajo03 = new THREE.Mesh(cubo09,color02);
+    //scene.add(vitbajo03); 
+    vitbajo03.position.set(-140,3,0);
+    vitbajo03.castShadow = true;
+
+    var cubo010 = new THREE.BoxGeometry(52,5,220.5,5,5,5);
+    var color016 = new THREE.MeshLambertMaterial({color:0x8F8F8F});
+    var adorno01 = new THREE.Mesh(cubo010,color016);
+    //scene.add(adorno01); 
+    adorno01.position.set(-140,45,0);
+    adorno01.castShadow = true;
+
+    var cubo011 = new THREE.BoxGeometry(45,5,205,5,5,5);
+    var color017 = new THREE.MeshLambertMaterial({color:0x05054A});
+    var adorno02 = new THREE.Mesh(cubo011,color017);
+    //scene.add(adorno02); 
+    adorno02.position.set(-140,63,0);
+    adorno02.castShadow = true;
+
+        //AGRUPAR PARTES DE MESA
+        var mesaplanetas = new THREE.Group();
+        mesaplanetas.add(mesa01,vitbajo03,adorno01,adorno02);
+        //scene.add(mesaplanetas);
+        mesaplanetas.position.set(0,0,0);
+
+        //PUNTOS DE LUZ MESA ABAJO
+        var pl06 = new THREE.PointLight(0x9822BF,2,100,0.8);
+        pl06.position.set(-115,0,150);
+        //scene.add(pl06);
+        var helpert06 = new THREE.PointLightHelper(pl06);
+        //scene.add(helpert06);
+
+        var pl07 = new THREE.PointLight(0x9822BF,2,100,0.8);
+        pl07.position.set(-160,0,120);
+       // scene.add(pl07);
+        var helpert07 = new THREE.PointLightHelper(pl07);
+        //scene.add(helpert07);
+
+        var pl08 = new THREE.PointLight(0x9822BF,2,100,0.8);
+        pl08.position.set(-115,0,-10);
+       // scene.add(pl08);
+        var helpert08 = new THREE.PointLightHelper(pl08);
+        //scene.add(helpert08);
+
+        var pl09 = new THREE.PointLight(0x9822BF,2,100,0.8);
+        pl09.position.set(-160,0,-10);
+       // scene.add(pl09);
+        var helpert09 = new THREE.PointLightHelper(pl09);
+        //scene.add(helpert09);
+
+        var pl010 = new THREE.PointLight(0x9822BF,2,100,0.8);
+        pl010.position.set(-115,0,-90);
+        //scene.add(pl010);
+        var helpert010 = new THREE.PointLightHelper(pl010);
+        //scene.add(helpert010);
+
+        var pl019 = new THREE.PointLight(0x9822BF,2,100,0.8);
+        pl019.position.set(-160,-1,-70);
+        //scene.add(pl019);
+        var helpert019 = new THREE.PointLightHelper(pl019);
+       // scene.add(helpert019);
+
+        var pl020 = new THREE.PointLight(0x9822BF,2,100,0.8);
+        pl020.position.set(-140,-1,200);
+       // scene.add(pl020);
+        var helpert020 = new THREE.PointLightHelper(pl020);
+        //scene.add(helpert020);
+
+        var pl021 = new THREE.PointLight(0x9822BF,2,70,0.8);
+        pl021.position.set(-140,-1,-200);
+       // scene.add(pl021);
+        var helpert021 = new THREE.PointLightHelper(pl021);
+        //scene.add(helpert021);
+
+        //PUNTOS DE LUZ DE PARTE SUPERIOR DE LA MESA
+        var pl031 = new THREE.PointLight(0x323F87,2.5,40,0.5);
+        pl031.position.set(-149,58,75);
+       // scene.add(pl031);
+        var helpert031 = new THREE.PointLightHelper(pl031);
+        //scene.add(helpert031);
+
+        var pl032 = new THREE.PointLight(0x323F87,2.5,40,0.5);
+        pl032.position.set(-149,58,58);
+       // scene.add(pl032);
+        var helpert032 = new THREE.PointLightHelper(pl032);
+       // scene.add(helpert032);
+
+        var pl033 = new THREE.PointLight(0x323F87,2.5,40,0.5);
+        pl033.position.set(-149,58,36.5);
+        //scene.add(pl033);
+        var helpert033 = new THREE.PointLightHelper(pl033);
+       // scene.add(helpert033);
+
+        var pl034 = new THREE.PointLight(0x323F87,2.5,40,0.5);
+        pl034.position.set(-149,58,17);
+        //scene.add(pl034);
+        var helpert034 = new THREE.PointLightHelper(pl034);
+        //scene.add(helpert034);
+
+        var pl035 = new THREE.PointLight(0x323F87,2.5,40,0.5);
+        pl035.position.set(-149,58,-2.5);
+        //scene.add(pl035);
+        var helpert035 = new THREE.PointLightHelper(pl035);
+        //scene.add(helpert035);
+
+        var pl036 = new THREE.PointLight(0x323F87,2.5,40,0.5);
+        pl036.position.set(-149,58,-29.7);
+        //scene.add(pl036);
+        var helpert036 = new THREE.PointLightHelper(pl036);
+        //scene.add(helpert036);
+
+        var pl037 = new THREE.PointLight(0x323F87,2.5,40,0.5);
+        pl037.position.set(-149,58,-55);
+       // scene.add(pl037);
+        var helpert037 = new THREE.PointLightHelper(pl037);
+        //scene.add(helpert037);
+
+        var pl038 = new THREE.PointLight(0x323F87,2.5,40,0.5);
+        pl038.position.set(-149,58,-72.5);
+        //scene.add(pl038);
+        var helpert038 = new THREE.PointLightHelper(pl038);
+        ///scene.add(helpert038);
+
+        //AGRUPAR LUCES
+        var luces01 = new THREE.Group();
+        luces01.add(pl06,pl07,pl08,pl09,pl010,pl019,pl020,pl021,pl031,pl032,pl033,pl034,pl035,pl036,pl037,pl038);
+        //scene.add(luces01);
+        //luces01.position.set(0,0,0);
+
+    //BASE CON LOS PLANETAS
+    var cylinder01 = new THREE.CylinderGeometry(1.5, 1.5, 23, 23);
+    var color018 = new THREE.MeshLambertMaterial({color:0x8F8F8F});
+    var tubo01 = new THREE.Mesh(cylinder01,color018);
+    //scene.add(tubo01); 
+    tubo01.position.set(-141,65,88);
+    tubo01.castShadow = true;
+        
+        //PLANETA
+        var sphere012 = new THREE.SphereGeometry(20,30,30);
+        var color019 = new THREE.MeshLambertMaterial({color:0x85827B});
+        var planeta01 = new THREE.Mesh(sphere012,color019);
+       //scene.add(planeta01);
+        planeta01.position.set(-141,78,88);
+        planeta01.scale.set(0.35,0.35,0.35);
+        planeta01.castShadow = true;
+
+    var tubo02 = new THREE.Mesh(cylinder01,color018);
+    //scene.add(tubo02); 
+    tubo02.position.set(-141,75,68);
+    tubo02.castShadow = true;
+
+        //PLANETA
+        var color020 = new THREE.MeshLambertMaterial({color:0xF7E9BA});
+        var planeta02 = new THREE.Mesh(sphere012,color020);
+        //scene.add(planeta02);
+        planeta02.position.set(-141,85,68);
+        planeta02.scale.set(0.5,0.5,0.5);
+        planeta02.castShadow = true;
+
+    var tubo03 = new THREE.Mesh(cylinder01,color018);
+    //scene.add(tubo03); 
+    tubo03.position.set(-141,70,43);
+    tubo03.castShadow = true;
+
+        //PLANETA
+        var color021 = new THREE.MeshLambertMaterial({color:0x8DC4FC});
+        var planeta03 = new THREE.Mesh(sphere012,color021);
+        //scene.add(planeta03);
+        planeta03.position.set(-141,80,43);
+        planeta03.scale.set(0.5,0.5,0.5);
+        planeta03.castShadow = true;
+
+    var tubo04 = new THREE.Mesh(cylinder01,color018);
+    //scene.add(tubo04); 
+    tubo04.position.set(-141,75,20);
+    tubo04.castShadow = true;
+
+        //PLANETA
+        var color022 = new THREE.MeshLambertMaterial({color:0x9E3636});
+        var planeta04 = new THREE.Mesh(sphere012,color022);
+        //scene.add(planeta04);
+        planeta04.position.set(-141,83,20);
+        planeta04.scale.set(0.45,0.45,0.45);
+        planeta04.castShadow = true;
+
+    var tubo05 = new THREE.Mesh(cylinder01,color018);
+    //scene.add(tubo05); 
+    tubo05.position.set(-141,75,-3);
+    tubo05.castShadow = true;
+
+        //PLANETA
+        var color023 = new THREE.MeshLambertMaterial({color:0xFC7F28});
+        var planeta05 = new THREE.Mesh(sphere012,color023);
+        //scene.add(planeta05);
+        planeta05.position.set(-141,90,-3);
+        planeta05.scale.set(0.6,0.6,0.6);
+        planeta05.castShadow = true;
+
+    var tubo06 = new THREE.Mesh(cylinder01,color018);
+    //scene.add(tubo06); 
+    tubo06.position.set(-141,76,-35);
+    tubo06.castShadow = true;
+
+        //PLANETA
+        var color024 = new THREE.MeshLambertMaterial({color:0xFCDC28});
+        var planeta06 = new THREE.Mesh(sphere012,color024);
+        //scene.add(planeta06);
+        planeta06.position.set(-141,86,-35);
+        planeta06.scale.set(0.6,0.6,0.6);
+        planeta06.castShadow = true;
+
+        var torus06 = new THREE.TorusGeometry(17, 2, 2.5, 60);
+        var circunferencia7 = new THREE.Mesh(torus06,color024);
+        //scene.add(circunferencia7);
+        circunferencia7.position.set(-141,86,-35);
+        circunferencia7.rotation.set(-1.5,0.25,-0.25);
+        circunferencia7.castShadow = true;
+
+    var tubo07 = new THREE.Mesh(cylinder01,color018);
+    //scene.add(tubo07); 
+    tubo07.position.set(-141,65,-65);
+    tubo07.castShadow = true;
+
+        //PLANETA
+        var color030 = new THREE.MeshLambertMaterial({color:0x73F0E6});
+        var planeta07 = new THREE.Mesh(sphere012,color030);
+        //scene.add(planeta07);
+        planeta07.position.set(-141,80,-65);
+        planeta07.scale.set(0.45,0.45,0.45);
+        planeta07.castShadow = true;
+
+    var tubo08 = new THREE.Mesh(cylinder01,color018);
+    //scene.add(tubo08); 
+    tubo08.position.set(-141,75,-85);
+    tubo08.castShadow = true;
+
+        //PLANETA
+        var color025 = new THREE.MeshLambertMaterial({color:0x1065B0});
+        var planeta08 = new THREE.Mesh(sphere012,color025);
+        //scene.add(planeta08);
+        planeta08.position.set(-141,90,-85);
+        planeta08.scale.set(0.45,0.45,0.45);
+        planeta08.castShadow = true;
+
+        //AGRUPAR PARTES DE MESA
+        var planetas = new THREE.Group();
+        planetas.add(tubo01,planeta01,tubo02,planeta02,tubo03,planeta03,tubo04,planeta04,tubo05,planeta05,tubo06,planeta06,tubo07,planeta07,circunferencia7,tubo08,planeta08);
+        //scene.add(planetas);
+        planetas.position.set(0,0,0);
+
+        //AGRUPAR MESA Y PLANETAS
+        var mesaplfinal = new THREE.Group();
+        mesaplfinal.add(mesaplanetas,planetas,luces01);
+        scene.add(mesaplfinal);
+        mesaplfinal.position.set(-29,0,0);
+        mesaplfinal.scale.set(0.85,0.85,0.85);
+
+     //LETRERO 3
+    var cubo015 = new THREE.BoxGeometry(22,30,18,10,10,10,10);
+    var tarjeta07 = new THREE.Mesh(cubo015,color03);
+    //scene.add(tarjeta07); 
+    tarjeta07.position.set(0,30,110);
+    tarjeta07.castShadow = true;
+
+    var cubo016 = new THREE.BoxGeometry(21,10,15,10,10,10,10);
+    var tarjeta08 = new THREE.Mesh(cubo016,color026);
+    //scene.add(tarjeta08); 
+    tarjeta08.position.set(0,44,109.8);
+    tarjeta08.rotation.set(0.5,0,0);
+    tarjeta08.castShadow = true;
+
+    var tarjeta09 = new THREE.Mesh(cubo012,color027);
+    //scene.add(tarjeta09); 
+    tarjeta09.position.set(0,45.5,110.5);
+    tarjeta09.rotation.set(0.5,0,0);
+    tarjeta09.scale.set(0.75,0.75,0.75);
+    tarjeta09.castShadow = true;
+
+        //AGRUPAR LETRERO
+        var letrero03 = new THREE.Group();
+        letrero03.add(tarjeta07,tarjeta08,tarjeta09);
+        //scene.add(letrero03);
+        letrero03.position.set(-278,-23,-50);
+        letrero03.rotation.set(0,1.6,0);
+        letrero03.scale.set(1.8,1.5,1.5);
+
+        //LETRERO 4
+        var letrero04 = letrero03.clone();
+        //scene.add(letrero04);
+        letrero04.position.set(-280,-23,55);
+        letrero04.rotation.set(0,1.6,0);
+
+        //LETRERO 5
+        var letrero05 = letrero03.clone();
+        //scene.add(letrero05);
+        letrero05.position.set(-20,-23,55);
+        letrero05.rotation.set(0,-1.6,0);
+
+        //LETRERO 6
+        var letrero06 = letrero03.clone();
+        //scene.add(letrero06);
+        letrero06.position.set(-20,-23,-50);
+        letrero06.rotation.set(0,-1.6,0);
+
+        //TEXTO DE LA MESA DE PLANETAS
+        var geometry08 = new TextGeometry('Arquitectura', { 
+            font: font, 
+            size: 8, 
+            height: 2,})
+        geometry08.center();
+
+        var texto07 = new THREE.Mesh(geometry08,material08);
+        texto07.position.set(0,5,0);
+        //scene.add(texto07);
+        texto07.scale.set(0.35,0.4,0.4);
+        texto07.rotation.set(0,1.6,0);
+        texto07.castShadow = true;
+
+        var geometry09 = new TextGeometry('Planetaria', { 
+            font: font, 
+            size: 8, 
+            height: 2,})
+        geometry09.center();
+
+        var texto08 = new THREE.Mesh(geometry09,material08);
+        texto08.position.set(0,0,0);
+        //scene.add(texto08);
+        texto08.scale.set(0.35,0.4,0.4);
+        texto08.rotation.set(0,1.6,0);
+        texto08.castShadow = true;
+
+        //AGRUPAR TEXTO DE LA FOTO
+        var planet01 = new THREE.Group();
+        planet01.add(texto07,texto08);
+        //scene.add(planet01);
+        planet01.position.set(-105,49,-55);
+        planet01.rotation.set(0,0,0.95);
+
+        var planet02 = planet01.clone();
+        //scene.add(planet02);
+        planet02.position.set(-110,50,50);
+
+
+        //TEXTO DE LA MESA DE PLANETAS
+        var geometry010 = new TextGeometry('Arquitectura', { 
+            font: font, 
+            size: 8, 
+            height: 2,})
+        geometry010.center();
+
+        var texto09 = new THREE.Mesh(geometry010,material08);
+        texto09.position.set(0,5,0);
+        //scene.add(texto09);
+        texto09.scale.set(0.35,0.4,0.4);
+        texto09.rotation.set(0,-1.6,0);
+        texto09.castShadow = true;
+
+        var geometry011 = new TextGeometry('Planetaria', { 
+            font: font, 
+            size: 8, 
+            height: 2,})
+        geometry011.center();
+
+        var texto010 = new THREE.Mesh(geometry011,material08);
+        texto010.position.set(0,0,0);
+        //scene.add(texto010);
+        texto010.scale.set(0.35,0.4,0.4);
+        texto010.rotation.set(0,-1.6,0);
+        texto010.castShadow = true;
+
+         //AGRUPAR TEXTO DE LA FOTO
+        var planet03 = new THREE.Group();
+        planet03.add(texto09,texto010);
+        //scene.add(planet03);
+        planet03.position.set(-190,50,50);
+        planet03.rotation.set(0,0,-0.95); 
+
+        var planet04 = planet03.clone();
+        //scene.add(planet04);
+        planet04.position.set(-190,50,-55);
+
+        
+        //AGRUPAR ELEMENTOS DE LA MESA CON LUCES DE ABAJO
+            var b3 = new THREE.Group();
+            b3.add(mesaplfinal,letrero03,letrero04,letrero05,letrero06,planet01,planet02,planet03,planet04);
+            scene.add(b3);
+            //b3.position.set(0,0,0);
+
+
+
+    //ESFERA ARMILAR
+    var torus01 = new THREE.TorusGeometry(50, 2, 10, 60);
+    var color09 = new THREE.MeshLambertMaterial({color:0x9E8F75});
+    var circunferencia1 = new THREE.Mesh(torus01,color09);
+    //scene.add(circunferencia1);
+    circunferencia1.position.set(0,60,0);
+    circunferencia1.rotation.set(0,0,0);
+    circunferencia1.castShadow = true;
+
+    var torus02 = new THREE.TorusGeometry(53, 2, 10, 60);
+    var circunferencia2 = new THREE.Mesh(torus02,color09);
+   // scene.add(circunferencia2);
+    circunferencia2.position.set(0,60,0);
+    circunferencia2.rotation.set(1.95,-0.75,0);
+    circunferencia2.castShadow = true;
+
+    var torus03 = new THREE.TorusGeometry(53, 2, 10, 60);
+    var circunferencia3 = new THREE.Mesh(torus03,color09);
+   //scene.add(circunferencia3);
+    circunferencia3.position.set(0,60,0);
+    circunferencia3.rotation.set(1.95,0.75,0);
+    circunferencia3.castShadow = true;
+
+    var torus04 = new THREE.TorusGeometry(49, 2, 10, 60);
+    var circunferencia4 = new THREE.Mesh(torus04,color09);
+    //scene.add(circunferencia4);
+    circunferencia4.position.set(0,60,0);
+    circunferencia4.rotation.set(0,1.6,0);
+    circunferencia4.castShadow = true;
+
+    var sphere01 = new THREE.SphereGeometry(13,30,30);
+    var color010 = new THREE.MeshLambertMaterial({color:0xFFBE47});
+    var esfera01 = new THREE.Mesh(sphere01,color010);
+    //scene.add(esfera01);
+    esfera01.position.set(0,60,0);
+    esfera01.castShadow = true;
+
+    var color011 = new THREE.MeshLambertMaterial({color:0x4A96ED});
+    var sphere02 = new THREE.SphereGeometry(7,30,30);
+    var esfera02 = new THREE.Mesh(sphere02,color011);
+    //scene.add(esfera02);
+    esfera02.position.set(-32,50,10);
+    esfera02.castShadow = true;
+
+    var color012 = new THREE.MeshLambertMaterial({color:0xF52C31});
+    var sphere03 = new THREE.SphereGeometry(7,30,30);
+    var esfera03 = new THREE.Mesh(sphere03,color012);
+    //scene.add(esfera03);
+    esfera03.position.set(20,88,10);
+    esfera03.castShadow = true;
+
+    var color014 = new THREE.MeshLambertMaterial({color:0x00BA3D});
+    var sphere010 = new THREE.SphereGeometry(7,30,30);
+    var esfera010 = new THREE.Mesh(sphere010,color014);
+    //scene.add(esfera010);
+    esfera010.position.set(-15,85,-25);
+    esfera010.castShadow = true;
+
+    var sphere011 = new THREE.SphereGeometry(7,30,30);
+    var esfera011 = new THREE.Mesh(sphere010,color014);
+    //scene.add(esfera011);
+    esfera011.position.set(22,30,25);
+    esfera011.castShadow = true;
+
+        //AGRUPAR LAS PARTES DEL ATOMO 
+        var atomo = new THREE.Group();
+        atomo.add(circunferencia1,circunferencia2,circunferencia3,circunferencia4,esfera01,esfera02,esfera03,esfera010,esfera011);
+        //scene.add(atomo);
+        atomo.position.set(0,0,0);
+
+    //BASE DEL ATOMO
+    var color013 = new THREE.MeshLambertMaterial({color:0xE09507});
+    var torus05 = new THREE.TorusGeometry(60, 3, 10, 60);
+    var circunferencia5 = new THREE.Mesh(torus05,color013);
+    //scene.add(circunferencia5);
+    circunferencia5.position.set(0,60,0);
+    circunferencia5.rotation.set(0,0,0);
+    circunferencia5.castShadow = true;
+
+    var circunferencia6 = new THREE.Mesh(torus05,color013);
+    //scene.add(circunferencia6);
+    circunferencia6.position.set(0,60,0);
+    circunferencia6.rotation.set(1.6,0,0);
+    circunferencia6.castShadow = true;
+
+    var cubo06 = new RoundedBoxGeometry(7,7.5,8,10,0.8);
+    var baseatomo = new THREE.Mesh(cubo06,color013);
+    //scene.add(baseatomo); 
+    baseatomo.position.set(0,0,0);
+    baseatomo.castShadow = true;
+
+    var sphere04 = new THREE.SphereGeometry(7,30,30);
+    var esfera04 = new THREE.Mesh(sphere04,color013);
+    //scene.add(esfera04);
+    esfera04.position.set(0,-4.5,0);
+    esfera04.scale.set(1,0.25,1);
+    esfera04.castShadow = true;
+
+    var sphere05 = new THREE.SphereGeometry(5,30,30);
+    var esfera05 = new THREE.Mesh(sphere05,color013);
+    //scene.add(esfera05);
+    esfera05.position.set(0,-6,0);
+    esfera05.scale.set(1,0.25,1);
+    esfera05.castShadow = true;
+
+    var sphere06 = new THREE.SphereGeometry(5,30,30);
+    var esfera06 = new THREE.Mesh(sphere06,color013);
+    //scene.add(esfera06);
+    esfera06.position.set(0,-8,0);
+    esfera06.castShadow = true;
+    
+    var sphere07 = new THREE.SphereGeometry(8,30,30);
+    var esfera07 = new THREE.Mesh(sphere07,color013);
+    //scene.add(esfera07);
+    esfera07.position.set(0,-10,0);
+    esfera07.scale.set(1,0.5,1);
+    esfera07.castShadow = true;
+
+    var sphere08 = new THREE.SphereGeometry(15,30,30);
+    var esfera08 = new THREE.Mesh(sphere08,color013);
+    //scene.add(esfera08);
+    esfera08.position.set(0,-18,0);
+    esfera08.scale.set(1,0.5,1);
+    esfera08.castShadow = true;
+
+    var cubo07 = new RoundedBoxGeometry(50,60,50,10,20);
+    var baseatomo01 = new THREE.Mesh(cubo07,color013);
+    //scene.add(baseatomo01); 
+    baseatomo01.position.set(0,-30,0);
+    baseatomo01.scale.set(1,0.5,1);
+    baseatomo01.castShadow = true;
+
+    var sphere09 = new THREE.SphereGeometry(20,30,30);
+    var esfera09 = new THREE.Mesh(sphere09,color013);
+    //scene.add(esfera09);
+    esfera09.position.set(0,-45,0);
+    esfera09.scale.set(1,0.25,1);
+    esfera09.castShadow = true;
+
+        //BASE FINAL DEL ATOMO
+        var basefinal = new THREE.Group();
+        basefinal.add(atomo,circunferencia5,circunferencia6,esfera04,esfera05,esfera06,baseatomo,esfera08,baseatomo01,esfera09);
+        //scene.add(basefinal);
+        basefinal.position.set(10,50,0);
+
+        //PUNTOS DE LUZ
+        var pl02 = new THREE.PointLight(0xFFF89C,2,80,0.8);
+        pl02.position.set(10,127.5,0);
+        //scene.add(pl02);
+        var helpert02 = new THREE.PointLightHelper(pl02);
+        //scene.add(helpert02);
+
+        var pl03 = new THREE.PointLight(0xFFF89C,2,80,0.8);
+        pl03.position.set(10,90,0);
+        //scene.add(pl03);
+        var helpert03 = new THREE.PointLightHelper(pl03);
+        //scene.add(helpert03);
+
+        var pl039 = new THREE.PointLight(0xFFF89C,2,80,0.8);
+        pl039.position.set(-10,110,0);
+        //scene.add(pl039);
+        var helpert039 = new THREE.PointLightHelper(pl039);
+        //scene.add(helpert039);
+
+        var pl040 = new THREE.PointLight(0xFFF89C,2,80,0.8);
+        pl040.position.set(30,110,0);
+        //scene.add(pl040);
+        var helpert040 = new THREE.PointLightHelper(pl040);
+        //scene.add(helpert040);
+
+        var pl041 = new THREE.PointLight(0xFFF89C,2,80,0.8);
+        pl041.position.set(10,110,20);
+        //scene.add(pl041);
+        var helpert041 = new THREE.PointLightHelper(pl041);
+        //scene.add(helpert041);
+
+        var pl042 = new THREE.PointLight(0xFFF89C,2,80,0.8);
+        pl042.position.set(10,110,-20);
+        //scene.add(pl042);
+        var helpert042 = new THREE.PointLightHelper(pl042);
+        //scene.add(helpert042);
+
+    
+    //LETRERO 5
+    var cubo017 = new THREE.BoxGeometry(22,30,18,10,10,10,10);
+    var tarjeta010 = new THREE.Mesh(cubo017,color03);
+    //scene.add(tarjeta010); 
+    tarjeta010.position.set(0,30,110);
+    tarjeta010.castShadow = true;
+
+    var cubo018 = new THREE.BoxGeometry(21,10,15,10,10,10,10);
+    var tarjeta011 = new THREE.Mesh(cubo018,color026);
+    //scene.add(tarjeta011); 
+    tarjeta011.position.set(0,44,109.8);
+    tarjeta011.rotation.set(0.5,0,0);
+
+    var tarjeta012 = new THREE.Mesh(cubo012,color027);
+    //scene.add(tarjeta012); 
+    tarjeta012.position.set(0,45.5,110.5);
+    tarjeta012.rotation.set(0.5,0,0);
+    tarjeta012.scale.set(0.75,0.75,0.75);
+
+        //AGRUPAR LETRERO
+        var letrero05 = new THREE.Group();
+        letrero05.add(tarjeta010,tarjeta011,tarjeta012);
+        //scene.add(letrero05);
+        letrero05.position.set(10,-23,-110);
+        letrero05.scale.set(1.8,1.5,1.5);
+
+        //TEXTO DEL ATOMO
+        var geometry012 = new TextGeometry('Mecanismo', { 
+            font: font, 
+            size: 8, 
+            height: 2,})
+        geometry012.center();
+
+        var texto011 = new THREE.Mesh(geometry012,material08);
+        texto011.position.set(0,5,0);
+        //scene.add(texto011);
+        texto011.scale.set(0.35,0.4,0.4);
+
+        var geometry013 = new TextGeometry('de Órbitas', { 
+            font: font, 
+            size: 8, 
+            height: 2,})
+        geometry013.center();
+
+        var texto012 = new THREE.Mesh(geometry013,material08);
+        texto012.position.set(0,0,0);
+        //scene.add(texto012);
+        texto012.scale.set(0.35,0.4,0.4);
+
+        //AGRUPAR TEXTO
+        var atomo01 = new THREE.Group();
+        atomo01.add(texto011,texto012);
+        //scene.add(atomo01);
+        atomo01.position.set(10,49.8,59);
+        atomo01.rotation.set(-0.95,0,0); 
+
+        //AGRUPAR ELEMENTOS DE LA MESA CON LUCES DE ABAJO
+            var b4 = new THREE.Group();
+            b4.add(basefinal,pl02,pl03,pl039,pl040,pl041,pl042,letrero05,atomo01);
+            scene.add(b4);
+            //b4.position.set(0,0,0);
+
+    //EXPORTAR PERSONAJE
+    const escenario01 = ESC01({x:50, y:50, z:50});
+    scene.add(escenario01);
+    escenario01.position.set(100,-10,50);
+    escenario01.scale.set(3,3,3);
+    escenario01.rotation.set(0,-0.5,0);
+
+        
+    //PUNTO 1
+    //cursor sobre la el atomo
+    basefinal.addEventListener('mouseover', (event) => {
+        document.body.style.cursor = 'pointer';
+        event.target.scale.set(1.05,1.05,1.05);});
+
+    //Cursor al quitar de la figura
+   basefinal.addEventListener('mouseout', (event) => {
+        document.body.style.cursor = 'default';
+        event.target.scale.set(1, 1, 1);});
+
+    basefinal.addEventListener('click', (event) => {
+        var coords = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+        event.target.scale.set(1.0, 1.0, 1.0);
+        new TWEEN.Tween(coords) 
+        .to({x:0,y:100,z:110}) 
+        .onUpdate(() => camera.position.set(coords.x,coords.y,coords.z ))
+        .start();
+    });
+
+    interactionManager.add(basefinal);
+
+
+    //PUNTO 2
+    //cursor sobre el cuadro 1
+    cuadro.addEventListener('mouseover', (event) => {
+        document.body.style.cursor = 'pointer';
+        event.target.scale.set(1.1,1.1,1.1);});
+
+    //Cursor al quitar de la figura
+    cuadro.addEventListener('mouseout', (event) => {
+        document.body.style.cursor = 'default';
+        event.target.scale.set(1, 1, 1);});
+
+    cuadro.addEventListener('click', (event) => {
+        var coords = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+        event.target.scale.set(1.0, 1.0, 1.0);
+        new TWEEN.Tween(coords) 
+        .to({x:0,y:120,z:-80}) 
+        .onUpdate(() => camera.position.set(coords.x,coords.y,coords.z ))
+        .start();
+    });
+
+    interactionManager.add(cuadro);
+
+
+    //PUNTO 3
+    //cursor sobre el cuadro 2
+    cuadro2.addEventListener('mouseover', (event) => {
+        document.body.style.cursor = 'pointer';
+        event.target.scale.set(1.05,1.05,1.05);});
+
+    //Cursor al quitar de la figura
+    cuadro2.addEventListener('mouseout', (event) => {
+        document.body.style.cursor = 'default';
+        event.target.scale.set(1, 1, 1);});
+
+    cuadro2.addEventListener('click', (event) => {
+        var coords = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+        event.target.scale.set(1.0, 1.0, 1.0);
+        new TWEEN.Tween(coords) 
+        .to({x:-130,y:170,z:-15}) 
+        .onUpdate(() => camera.position.set(coords.x,coords.y,coords.z ))
+        .start();
+    });
+
+    interactionManager.add(cuadro2);
+
+
+    //PUNTO 4
+    //cursor sobre la piedra
+    piedra.addEventListener('mouseover', (event) => {
+        document.body.style.cursor = 'pointer';
+        event.target.scale.set(1.2,1.2,1.2);});
+
+    //Cursor al quitar de la figura
+    piedra.addEventListener('mouseout', (event) => {
+        document.body.style.cursor = 'default';
+        event.target.scale.set(1, 1, 1);});
+
+    piedra.addEventListener('click', (event) => {
+        var coords = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+        event.target.scale.set(1.0, 1.0, 1.0);
+        new TWEEN.Tween(coords) 
+        .to({x:95,y:90,z:60}) 
+        .onUpdate(() => camera.position.set(coords.x,coords.y,coords.z ))
+        .start();
+    });
+
+    interactionManager.add(piedra);
+
+
+    //PUNTO 5
+    //cursor sobre el diamante
+    diamantefinal.addEventListener('mouseover', (event) => {
+        document.body.style.cursor = 'pointer';
+        event.target.scale.set(1.03,1.03,1.03);});
+
+    //Cursor al quitar de la figura
+    diamantefinal.addEventListener('mouseout', (event) => {
+        document.body.style.cursor = 'default';
+        event.target.scale.set(1, 1, 1);});
+
+    diamantefinal.addEventListener('click', (event) => {
+        var coords = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+        event.target.scale.set(1.0, 1.0, 1.0);
+        new TWEEN.Tween(coords) 
+        .to({x:95,y:95,z:-52}) 
+        .onUpdate(() => camera.position.set(coords.x,coords.y,coords.z ))
+        .start();
+    });
+
+    interactionManager.add(diamantefinal);
+
+
+    //PUNTO 6
+    //cursor sobre la foto 3
+    cuadro3.addEventListener('mouseover', (event) => {
+        document.body.style.cursor = 'pointer';
+        event.target.scale.set(1.05,1.05,1.05);});
+
+    //Cursor al quitar de la figura
+    cuadro3.addEventListener('mouseout', (event) => {
+        document.body.style.cursor = 'default';
+        event.target.scale.set(1, 1, 1);});
+
+    cuadro3.addEventListener('click', (event) => {
+        var coords = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+        event.target.scale.set(1.0, 1.0, 1.0);
+        new TWEEN.Tween(coords) 
+        .to({x:160,y:190,z:-80}) 
+        .onUpdate(() => camera.position.set(coords.x,coords.y,coords.z ))
+        .start();
+    });
+
+    interactionManager.add(cuadro3);
+
+
+     //PUNTO 7
+    //cursor sobre la foto 4
+    cuadro4.addEventListener('mouseover', (event) => {
+        document.body.style.cursor = 'pointer';
+        event.target.scale.set(1.05,1.05,1.05);});
+
+    //Cursor al quitar de la figura
+    cuadro4.addEventListener('mouseout', (event) => {
+        document.body.style.cursor = 'default';
+        event.target.scale.set(1, 1, 1);});
+
+    cuadro4.addEventListener('click', (event) => {
+        var coords = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+        event.target.scale.set(1.0, 1.0, 1.0);
+        new TWEEN.Tween(coords) 
+        .to({x:160,y:190,z:0}) 
+        .onUpdate(() => camera.position.set(coords.x,coords.y,coords.z ))
+        .start();
+    });
+
+    interactionManager.add(cuadro4);
+
+     //PUNTO 8
+    //cursor sobre la foto 5
+    cuadro5.addEventListener('mouseover', (event) => {
+        document.body.style.cursor = 'pointer';
+        event.target.scale.set(1.05,1.05,1.05);});
+
+    //Cursor al quitar de la figura
+    cuadro5.addEventListener('mouseout', (event) => {
+        document.body.style.cursor = 'default';
+        event.target.scale.set(1, 1, 1);});
+
+    cuadro5.addEventListener('click', (event) => {
+        var coords = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+        event.target.scale.set(1.0, 1.0, 1.0);
+        new TWEEN.Tween(coords) 
+        .to({x:160,y:190,z:80}) 
+        .onUpdate(() => camera.position.set(coords.x,coords.y,coords.z ))
+        .start();
+    });
+
+    interactionManager.add(cuadro5);
+
+    //PUNTO 8
+    //cursor sobre la mesa planetas
+    planet01.addEventListener('mouseover', (event) => {
+        document.body.style.cursor = 'pointer';
+        event.target.scale.set(1.2,1.2,1.2);});
+
+    //Cursor al quitar de la figura
+    planet01.addEventListener('mouseout', (event) => {
+        document.body.style.cursor = 'default';
+        event.target.scale.set(1, 1, 1);});
+
+    planet01.addEventListener('click', (event) => {
+        var coords = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+        event.target.scale.set(1.0, 1.0, 1.0);
+        new TWEEN.Tween(coords) 
+        .to({x:-80,y:90,z:-55}) 
+        .onUpdate(() => camera.position.set(coords.x,coords.y,coords.z ))
+        .start();
+    });
+
+    interactionManager.add(planet01);
+
+     //PUNTO 9
+    //cursor sobre la mesa planetas
+    planet02.addEventListener('mouseover', (event) => {
+        document.body.style.cursor = 'pointer';
+        event.target.scale.set(1.2,1.2,1.2);});
+
+    //Cursor al quitar de la figura
+    planet02.addEventListener('mouseout', (event) => {
+        document.body.style.cursor = 'default';
+        event.target.scale.set(1, 1, 1);});
+
+    planet02.addEventListener('click', (event) => {
+        var coords = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+        event.target.scale.set(1.0, 1.0, 1.0);
+        new TWEEN.Tween(coords) 
+        .to({x:-80,y:90,z:50}) 
+        .onUpdate(() => camera.position.set(coords.x,coords.y,coords.z ))
+        .start();
+    });
+
+    interactionManager.add(planet02);
+    
+
+    //PUNTO 9
+    //cursor sobre la mesa planetas
+    planet02.addEventListener('mouseover', (event) => {
+        document.body.style.cursor = 'pointer';
+        event.target.scale.set(1.2,1.2,1.2);});
+
+    //Cursor al quitar de la figura
+    planet02.addEventListener('mouseout', (event) => {
+        document.body.style.cursor = 'default';
+        event.target.scale.set(1, 1, 1);});
+
+    planet02.addEventListener('click', (event) => {
+        var coords = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+        event.target.scale.set(1.0, 1.0, 1.0);
+        new TWEEN.Tween(coords) 
+        .to({x:-80,y:90,z:50}) 
+        .onUpdate(() => camera.position.set(coords.x,coords.y,coords.z ))
+        .start();
+    });
+
+    interactionManager.add(planet02);
+
+    //PUNTO 10
+    //cursor sobre la mesa planetas
+    planet03.addEventListener('mouseover', (event) => {
+        document.body.style.cursor = 'pointer';
+        event.target.scale.set(1.2,1.2,1.2);});
+
+    //Cursor al quitar de la figura
+    planet03.addEventListener('mouseout', (event) => {
+        document.body.style.cursor = 'default';
+        event.target.scale.set(1, 1, 1);});
+
+    planet03.addEventListener('click', (event) => {
+        var coords = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+        event.target.scale.set(1.0, 1.0, 1.0);
+        new TWEEN.Tween(coords) 
+        .to({x:-200,y:90,z:50}) 
+        .onUpdate(() => camera.position.set(coords.x,coords.y,coords.z ))
+        .start();
+    });
+
+    interactionManager.add(planet03);
+
+    //PUNTO 11
+    //cursor sobre la mesa planetas
+    planet04.addEventListener('mouseover', (event) => {
+        document.body.style.cursor = 'pointer';
+        event.target.scale.set(1.2,1.2,1.2);});
+
+    //Cursor al quitar de la figura
+    planet04.addEventListener('mouseout', (event) => {
+        document.body.style.cursor = 'default';
+        event.target.scale.set(1, 1, 1);});
+
+    planet04.addEventListener('click', (event) => {
+        var coords = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+        event.target.scale.set(1.0, 1.0, 1.0);
+        new TWEEN.Tween(coords) 
+        .to({x:-200,y:90,z:-50}) 
+        .onUpdate(() => camera.position.set(coords.x,coords.y,coords.z ))
+        .start();
+    });
+
+    interactionManager.add(planet04);
+
+    //PUNTO 12
+    //cursor sobre la mesa planetas
+    cristal03.addEventListener('mouseover', (event) => {
+        document.body.style.cursor = 'pointer';
+        event.target.scale.set(1.2,1.2,1.2);});
+
+    //Cursor al quitar de la figura
+    cristal03.addEventListener('mouseout', (event) => {
+        document.body.style.cursor = 'default';
+        event.target.scale.set(1, 1, 1);});
+
+    cristal03.addEventListener('click', (event) => {
+        var coords = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+        event.target.scale.set(1.0, 1.0, 1.0);
+        new TWEEN.Tween(coords) 
+        .to({x:-235,y:70,z:96}) 
+        .onUpdate(() => camera.position.set(coords.x,coords.y,coords.z ))
+        .start();
+    });
+
+    interactionManager.add(cristal03);
+
+    //PUNTO 13
+    //cursor sobre la mesa planetas
+    cristal04.addEventListener('mouseover', (event) => {
+        document.body.style.cursor = 'pointer';
+        event.target.scale.set(1.2,1.2,1.2);});
+
+    //Cursor al quitar de la figura
+    cristal04.addEventListener('mouseout', (event) => {
+        document.body.style.cursor = 'default';
+        event.target.scale.set(1, 1, 1);});
+
+    cristal04.addEventListener('click', (event) => {
+        var coords = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+        event.target.scale.set(1.0, 1.0, 1.0);
+        new TWEEN.Tween(coords) 
+        .to({x:35,y:70,z:-96}) 
+        .onUpdate(() => camera.position.set(coords.x,coords.y,coords.z ))
+        .start();
+    });
+
+    interactionManager.add(cristal04);
+
+    //PUNTO 14
+    //cursor sobre el pesronaje
+    escenario01.addEventListener('mouseover', (event) => {
+        document.body.style.cursor = 'pointer';
+        event.target.scale.set(3,3.3);});
+
+    //Cursor al quitar de la figura
+    escenario01.addEventListener('mouseout', (event) => {
+        document.body.style.cursor = 'default';
+        event.target.scale.set(2.5, 2.5, 2.5);});
+
+    escenario01.addEventListener('click', (event) => {
+        var coords = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+        event.target.scale.set(1.0, 1.0, 1.0);
+        new TWEEN.Tween(coords) 
+        .to({x:100,y:50,z:150}) 
+        .onUpdate(() => camera.position.set(coords.x,coords.y,coords.z ))
+        .start();
+    });
+
+    interactionManager.add(escenario01);
+
+    // CRUZ CENTRAL QUE SIRVE DE GUIA
+    var cruz1 = new THREE.BoxGeometry(.0075, .05, .075);
+    var material2 = new THREE.MeshLambertMaterial({color:0xFF0073});
+    var mesh1 = new THREE.Mesh(cruz1, material2);
+    mesh1.position.set(0,0,-1);
+
+    var cruz2 = new THREE.BoxGeometry(.05, .0075, .075);
+    var mesh2 = new THREE.Mesh(cruz2, material2);
+    mesh2.position.set(0,0,-1);
+    scene.add( camera );
+    camera.add( mesh1, mesh2 );
+   
+
+
+    
+
+//🎰🎰Rendering y animación
+    requestAnimationFrame(render);
+     function render() {
+        TWEEN.update()  //se agrega la transición del tween a functionrender para que genere la animación el movimiento suave
+
+        interactionManager.update();////// sedebe actualizar el interaction manager en las animaciones
+
+    //🪄🪄 Animación - 
+
+    atomo.rotation.y -= 0.01
+
+
+    //🎮🎮Actualización del OrbitControls para generar la suavidad de movimiento
+
+    //Llamado para renderizar y volver a llamar a la misma función (render)
+    renderer.render(scene, camera);
+    requestAnimationFrame(render);
+    }
+</script>
+</body>
+</html>
